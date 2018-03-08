@@ -180,8 +180,13 @@ public class VerticalScrollView extends FrameLayout {
             // 计算mainView的顶部将要变成的坐标值：当前的顶部坐标+滑动的距离
             int newTop = top + dy;
             // 如果超出MDragRange的值后不需要放大上部menuView，则需要限制
-            if (!mIsScaleMenuView)
+            if (!mIsScaleMenuView) {
                 if (newTop > mDragRange) newTop = mDragRange;
+            } else {
+                // 如果需要放大，则不让下方的View变化很大
+                if (newTop > mDragRange) newTop = top - dy / 2;
+            }
+
             if (newTop < 0) newTop = 0;
             return newTop;
         }

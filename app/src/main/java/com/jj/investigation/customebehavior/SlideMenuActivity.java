@@ -51,7 +51,6 @@ public class SlideMenuActivity extends AppCompatActivity {
                     }
                 }
                 tv.setTranslationY(instance / 2 - maxInstance / 2);
-//                tv.setTranslationX(0 - 40);
                 tv.setScaleX(1 - alpha / 2);
                 tv.setScaleY(1 - alpha / 2);
             }
