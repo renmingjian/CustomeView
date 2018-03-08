@@ -1,6 +1,7 @@
 package com.jj.investigation.customebehavior.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
@@ -12,6 +13,8 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+
+import com.jj.investigation.customebehavior.R;
 
 /**
  * 垂直滑动的效果
@@ -50,7 +53,14 @@ public class VerticalScrollView extends FrameLayout {
 
     public VerticalScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        obtainAttrs(attrs);
         init();
+    }
+
+    private void obtainAttrs(AttributeSet attrs) {
+        final TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.VerticalScrollView);
+        mIsScaleMenuView = ta.getBoolean(R.styleable.VerticalScrollView_top_meun_scrollable, true);
+        ta.recycle();
     }
 
     private void init() {

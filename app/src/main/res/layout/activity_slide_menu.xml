@@ -24,7 +24,8 @@
     <com.jj.investigation.customebehavior.view.VerticalScrollView
         android:id="@+id/verticalScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:top_meun_scrollable="true">
 
         <include layout="@layout/layout_menu" />
 
