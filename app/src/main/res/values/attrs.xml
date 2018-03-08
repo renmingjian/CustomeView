@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <declare-styleable name="VerticalScrollView">
+        <attr name="top_meun_scrollable" format="boolean"/>
+    </declare-styleable>
+    
+</resources>
