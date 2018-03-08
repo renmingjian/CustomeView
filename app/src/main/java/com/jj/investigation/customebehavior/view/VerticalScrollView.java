@@ -18,6 +18,9 @@ import com.jj.investigation.customebehavior.R;
 
 /**
  * 垂直滑动的效果
+ * 自定义属性：
+ *      mIsScaleMenuView的属性值设置
+ *      <attr name="top_meun_scrollable" format="boolean"/>
  * Created by ${R.js} on 2018/3/7.
  */
 
@@ -153,7 +156,10 @@ public class VerticalScrollView extends FrameLayout {
         return true;
     }
 
-    final ViewDragHelper.Callback callback = new ViewDragHelper.Callback() {
+    /**
+     * ViewDragHelper的回调
+     */
+    private final ViewDragHelper.Callback callback = new ViewDragHelper.Callback() {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
@@ -183,7 +189,7 @@ public class VerticalScrollView extends FrameLayout {
             if (!mIsScaleMenuView) {
                 if (newTop > mDragRange) newTop = mDragRange;
             } else {
-                // 如果需要放大，则不让下方的View变化很大
+                // 如果需要放大，则不让上下两个View变化很大，尤其是上面部分
                 if (newTop > mDragRange) newTop = top - dy / 2;
             }
 
@@ -193,8 +199,8 @@ public class VerticalScrollView extends FrameLayout {
 
         /**
          * 控制mainView的滑动，同时控制menuView的伴随滑动
-         * mainView的滑动范围是：0 - MDragRange
-         * menuView的滑动范围是：-MDragRange / 2 - 0
+         * mainView的滑动范围是：[0 - MDragRange]
+         * menuView的滑动范围是：[-MDragRange / 2 - 0]
          */
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
@@ -209,7 +215,7 @@ public class VerticalScrollView extends FrameLayout {
                 if (onScrollListener != null)
                     onScrollListener.onScroll(top, mDragRange, 1 - alpha);
             } else {
-                // 如果超出了MDragRange的范围，则判断是否需要让menuView进行放大
+                // 如果超出了mDragRange的范围，则判断是否需要让menuView进行放大
                 if (!mIsScaleMenuView) return;
                 final float scale = (float) top / mMenuView.getHeight();
                 mMenuView.setScaleX(scale * scale);

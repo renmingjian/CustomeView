@@ -1,4 +1,4 @@
-package com.jj.investigation.customebehavior;
+package com.jj.investigation.customebehavior.activity;
 
 import android.content.Intent;
 import android.support.design.widget.AppBarLayout;
@@ -9,6 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+
+import com.jj.investigation.customebehavior.BehaviroAdapter;
+import com.jj.investigation.customebehavior.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SlideMenuActivity.class));
+                startActivity(new Intent(MainActivity.this, CustomeViewActivity.class));
             }
         });
 

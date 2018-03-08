@@ -1,22 +1,25 @@
-package com.jj.investigation.customebehavior;
+package com.jj.investigation.customebehavior.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.jj.investigation.customebehavior.R;
+import com.jj.investigation.customebehavior.adapter.DataAdapter;
 import com.jj.investigation.customebehavior.utils.StatusBarUtil;
 import com.jj.investigation.customebehavior.view.VerticalScrollView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlideMenuActivity extends AppCompatActivity {
+/**
+ * 显示上下滑动的View页面
+ * Created by ${R.js} on 2018/3/6.
+ */
+public class VerticalScrollViewActivity extends AppCompatActivity {
 
     private ListView listView;
     private VerticalScrollView verticalScrollView;
@@ -27,7 +30,7 @@ public class SlideMenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_slide_menu);
+        setContentView(R.layout.activity_vertical_scroll_iew);
 
         StatusBarUtil.setStatusBarTranslucent(this);
 
@@ -59,52 +62,10 @@ public class SlideMenuActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        List<String> list = new ArrayList<>();
+        final List<String> list = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             list.add("item--" + i);
         }
-        listView.setAdapter(new DataAdapter(list));
-    }
-
-    public class DataAdapter extends BaseAdapter {
-
-        private List<String> list;
-
-        public DataAdapter(List<String> list) {
-            this.list = list;
-        }
-
-        @Override
-        public int getCount() {
-            return list.size();
-        }
-
-        @Override
-        public String getItem(int position) {
-            return list.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            if (holder == null) {
-                holder = new ViewHolder();
-                convertView = View.inflate(SlideMenuActivity.this, R.layout.item, null);
-                holder.tv = (TextView) convertView.findViewById(R.id.tv);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            holder.tv.setText(getItem(position));
-            return convertView;
-        }
-    }
-
-    public class ViewHolder {
-        TextView tv;
+        listView.setAdapter(new DataAdapter(this, list));
     }
 }

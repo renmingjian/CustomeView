@@ -1,6 +1,7 @@
 package com.jj.investigation.customebehavior.view;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.InflateException;
@@ -27,6 +28,8 @@ public class SlideMenu extends FrameLayout {
     private int mMainWidth;
     // 拖动的最大范围
     private int mDragRange;
+    // 打开的状态
+    public static boolean mOpenStatus = true;
 
     public SlideMenu(Context context) {
         this(context, null);
@@ -80,16 +83,16 @@ public class SlideMenu extends FrameLayout {
          */
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
+            int newLeft = left + dx;
             if (child == mMainView) {
-                if (left < 0) left = 0;
-                if (left > mDragRange) left = mDragRange;
+                if (newLeft < 0) newLeft = 0;
+                if (newLeft > mDragRange) newLeft = mDragRange;
             }
-//            if (child == mMenuView) {
-//                if (left < -mMenuWidth) left = -mMenuWidth;
-//                if (left > -mDragRange) left = -mDragRange;
-//            }
-            System.out.println("leftt = " + left + ",,," + (-mMenuWidth + mDragRange));
-            return left;
+            if (child == mMenuView) {
+                if (newLeft < -mDragRange / 2) newLeft = -mDragRange / 2;
+                if (newLeft > 0) newLeft = 0;
+            }
+            return newLeft;
         }
 
         @Override
@@ -109,25 +112,19 @@ public class SlideMenu extends FrameLayout {
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             super.onViewPositionChanged(changedView, left, top, dx, dy);
             if (changedView == mMenuView) {
-                int newLeft = left + dx;
-                if (newLeft > mDragRange) newLeft = mDragRange;
-                if (newLeft < 0) newLeft = 0;
-                mMainView.layout(newLeft, 0, mMainWidth, mMainView.getBottom());
+                mMainView.layout(mDragRange + 2 * left, 0, mMainWidth, mMainView.getBottom());
+                mMenuView.layout(left, 0, mMenuWidth, mMainView.getBottom());
             }
             if (changedView == mMainView) {
-                System.out.println("getLeft = " + mMenuView.getLeft());
-//                int newLeft = mMenuView.getLeft() + dx;
-//                if (newLeft < -mMenuWidth) newLeft = -mMenuWidth;
-//                if (newLeft > -mDragRange) newLeft = -mDragRange;
-//                mMenuView.layout(newLeft, 0, mMenuWidth, mMenuView.getBottom());
-//                System.out.println("newLeft = " + newLeft);
-//                System.out.println("left = " + left + ", dx = " + dx);
+                mMenuView.layout((left - mDragRange) / 2, 0, mMainWidth, mMainView.getBottom());
+                mMainView.layout(left, 0, mMainWidth, mMainView.getBottom());
             }
         }
 
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
+            whenFingerUp();
         }
     };
 
@@ -142,6 +139,7 @@ public class SlideMenu extends FrameLayout {
             throw new InflateException("侧滑布局必须有且仅有两个直接的子View");
         mMenuView = getChildAt(0);
         mMainView = getChildAt(1);
+
     }
 
     /**
@@ -153,10 +151,8 @@ public class SlideMenu extends FrameLayout {
 
         mMenuWidth = mMenuView.getMeasuredWidth();
         mMainWidth = mMainView.getMeasuredWidth();
-        mDragRange = (int) (getMeasuredWidth() * 0.6f);
-
-        System.out.println("mMenuWidth = " + mMenuWidth);
-        System.out.println("mMainWidth = " + mMainWidth);
+        mDragRange = mMenuWidth;
+        close();
     }
 
 
@@ -170,5 +166,45 @@ public class SlideMenu extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         mDragHelper.processTouchEvent(event);
         return true;
+    }
+
+
+    /**
+     * 当手指抬起时判断是要关闭还是打开
+     */
+    private void whenFingerUp() {
+        if (mMainView.getLeft() < mDragRange / 2) {
+            close();
+        } else {
+            open();
+        }
+    }
+
+    /**
+     * 关闭状态
+     */
+    public void close() {
+        mOpenStatus = false;
+        mDragHelper.smoothSlideViewTo(mMainView, 0, 0);
+        mDragHelper.smoothSlideViewTo(mMenuView, -mDragRange / 2, 0);
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    /**
+     * 打开状态
+     */
+    public void open() {
+        mOpenStatus = true;
+        mDragHelper.smoothSlideViewTo(mMainView, mDragRange, 0);
+        mDragHelper.smoothSlideViewTo(mMenuView, 0, 0);
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        if (mDragHelper.continueSettling(true)) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 }
