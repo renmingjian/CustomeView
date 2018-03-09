@@ -15,7 +15,7 @@ import android.view.WindowManager;
 
 public class StatusBarUtil {
     /**
-     * 为我们的 activity 的状态栏设置颜色
+     * 给activity的状态栏设置颜色
      *
      * @param activity
      * @param color
@@ -41,40 +41,8 @@ public class StatusBarUtil {
         }
     }
 
-    public static View setStatusBarColorAndInflateStatusBar(Activity activity, int color) {
-        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-        View view = new View(activity);
-        ViewGroup.LayoutParams params = new ViewGroup
-                .LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, getStatusBarHeight(activity));
-        view.setLayoutParams(params);
-        view.setBackgroundColor(color);
-
-        ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
-        decorView.addView(view);
-
-        ViewGroup contentView = (ViewGroup) activity.findViewById(android.R.id.content);
-        contentView.setPadding(0, getStatusBarHeight(activity), 0, 0);
-        return view;
-    }
-
     /**
-     * 获取状态栏的高度
-     *
-     * @param activity
-     * @return
-     */
-    public static int getStatusBarHeight(Activity activity) {
-        // 插件式换肤：怎么获取资源的，先获取资源id，根据id获取资源
-        Resources resources = activity.getResources();
-        int statusBarHeightId = resources.getIdentifier("status_bar_height", "dimen", "android");
-        return resources.getDimensionPixelOffset(statusBarHeightId);
-    }
-
-    /**
-     * 设置activity全屏
-     *
-     * @param activity
+     * 设置activity全屏，状态栏透明，内容填充到状态栏中
      */
     public static void setStatusBarTranslucent(Activity activity) {
         // 5.0 以上
@@ -86,6 +54,16 @@ public class StatusBarUtil {
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
     }
+
+    /**
+     * 获取状态栏的高度
+     */
+    public static int getStatusBarHeight(Activity activity) {
+        Resources resources = activity.getResources();
+        int statusBarHeightId = resources.getIdentifier("status_bar_height", "dimen", "android");
+        return resources.getDimensionPixelOffset(statusBarHeightId);
+    }
+
 
     /**
      * 修改状态来字体颜色

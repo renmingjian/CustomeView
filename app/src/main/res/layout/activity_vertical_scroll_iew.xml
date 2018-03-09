@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:titleTextColor="@android:color/white"
-            app:title="你大爷"/>
+            app:title="你大爷是程序员"/>
 
     </android.support.design.widget.AppBarLayout>
 

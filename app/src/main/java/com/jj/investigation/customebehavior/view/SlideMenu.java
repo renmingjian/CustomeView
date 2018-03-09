@@ -83,12 +83,16 @@ public class SlideMenu extends FrameLayout {
          */
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            int newLeft = left + dx;
+            int newLeft = 0;
             if (child == mMainView) {
+                // 主要是为了在滑动main布局时，手指滑动多少，main布局移动多少
+                newLeft = left + dx / 2;
                 if (newLeft < 0) newLeft = 0;
                 if (newLeft > mDragRange) newLeft = mDragRange;
             }
             if (child == mMenuView) {
+                // 主要是为了在滑动menu布局时，手指滑动多少，main布局移动多少
+                newLeft = left - dx / 2;
                 if (newLeft < -mDragRange / 2) newLeft = -mDragRange / 2;
                 if (newLeft > 0) newLeft = 0;
             }

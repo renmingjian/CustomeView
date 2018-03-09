@@ -46,11 +46,11 @@ public class VerticalScrollViewActivity extends AppCompatActivity {
             public void onScroll(int instance, int maxInstance, float alpha) {
                 appbarlayout.setAlpha(alpha);
                 if (instance <= appbarlayout.getHeight()) {
-                    if (!"我就是你爹".equals(tool_bar.getTitle()))
-                        tool_bar.setTitle("我就是你爹");
+                    if (!"你爹也是程序员".equals(tool_bar.getTitle()))
+                        tool_bar.setTitle("你爹也是程序员");
                 } else {
-                    if (!"你大爷".equals(tool_bar.getTitle())) {
-                        tool_bar.setTitle("你大爷");
+                    if (!"你大爷是程序员".equals(tool_bar.getTitle())) {
+                        tool_bar.setTitle("你大爷是程序员");
                     }
                 }
                 tv.setTranslationY(instance / 2 - maxInstance / 2);

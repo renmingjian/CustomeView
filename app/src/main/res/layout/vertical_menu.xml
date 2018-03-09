@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
-        android:text="我就是你爹"
+        android:text="你爹也是程序员"
         android:textSize="22sp"
         android:background="@android:color/transparent"/>
 

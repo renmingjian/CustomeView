@@ -1,37 +1,43 @@
 package com.jj.investigation.customebehavior.activity;
 
 import android.content.Intent;
-import android.support.design.widget.AppBarLayout;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
-import com.jj.investigation.customebehavior.BehaviroAdapter;
 import com.jj.investigation.customebehavior.R;
+import com.jj.investigation.customebehavior.fragment.ContactFragment;
+import com.jj.investigation.customebehavior.fragment.GroupFragment;
+import com.jj.investigation.customebehavior.fragment.HomeFragment;
+import com.jj.investigation.customebehavior.helper.NavHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, NavHelper.OnTabChangedListener<Integer> {
 
-    private Toolbar mToolBar;
-    private RecyclerView mRecyclerView;
+    private BottomNavigationView mBnvMain;
+    private NavHelper<Integer> mNavHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow()
+                .addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         initView();
+        initData();
     }
 
     private void initView() {
-        mToolBar = (Toolbar) findViewById(R.id.tool_bar);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        AppBarLayout appbarlayout = (AppBarLayout) findViewById(R.id.appbarlayout);
+
+        mBnvMain = (BottomNavigationView) findViewById(R.id.bnv_main);
+        mBnvMain.setOnNavigationItemSelectedListener(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        appbarlayout.setAlpha(0);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,11 +45,29 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, CustomeViewActivity.class));
             }
         });
+    }
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        BehaviroAdapter adapter = new BehaviroAdapter(this);
+    private void initData() {
+        // 初始化底部辅助工具类
+        mNavHelper = new NavHelper<>(this, R.id.fl_main_container,
+                getSupportFragmentManager(), this);
+        mNavHelper.add(R.id.action_home, new NavHelper.Tab<>(HomeFragment.class, R.string.action_home))
+                .add(R.id.action_group, new NavHelper.Tab<>(GroupFragment.class, R.string.action_group))
+                .add(R.id.action_contact, new NavHelper.Tab<>(ContactFragment.class, R.string.action_contact));
 
-        mRecyclerView.setAdapter(adapter);
+        Menu menu = mBnvMain.getMenu();
+        // 触发首次选中Home
+        menu.performIdentifierAction(R.id.action_home, 0);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+        return mNavHelper.performClickMenu(item.getItemId());
+    }
+
+    @Override
+    public void onTabChanged(NavHelper.Tab<Integer> newTab, NavHelper.Tab<Integer> oldTab) {
 
     }
 }

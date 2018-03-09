@@ -7,25 +7,10 @@
     android:layout_height="match_parent"
     tools:context="com.jj.investigation.customebehavior.activity.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbarlayout"
+    <FrameLayout
+        android:id="@+id/fl_main_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/tool_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:title="剑神首页"
-            android:titleTextColor="@color/colorPrimaryDark"/>
-
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -37,9 +22,14 @@
         app:layout_behavior="com.jj.investigation.customebehavior.behavior.TranslateBehavior"/>
 
     <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bnv_main"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/colorAccent"
-        app:layout_behavior="@string/bottom_sheet_behavior"/>
+        app:menu="@menu/navigation_items"
+        android:layout_gravity="bottom"
+        android:elevation="4dp"
+        android:outlineProvider="bounds"
+        android:translationZ="8dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
