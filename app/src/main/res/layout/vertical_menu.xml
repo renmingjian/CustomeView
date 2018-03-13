@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@mipmap/programmer"/>
+        android:src="@mipmap/programmer" />
 
     <TextView
         android:id="@+id/tv"
@@ -15,8 +15,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
+        android:background="@android:color/transparent"
         android:text="你爹也是程序员"
-        android:textSize="22sp"
-        android:background="@android:color/transparent"/>
+        android:textSize="22sp" />
+
+    <ProgressBar
+        android:id="@+id/pb_refresh"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:progress="50"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"/>
 
 </RelativeLayout>

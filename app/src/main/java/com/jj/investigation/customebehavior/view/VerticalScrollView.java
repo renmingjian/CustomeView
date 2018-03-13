@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
-import android.view.InflateException;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,8 @@ import com.jj.investigation.customebehavior.R;
 /**
  * 垂直滑动的效果
  * 自定义属性：
- *      mIsScaleMenuView的属性值设置
- *      <attr name="top_meun_scrollable" format="boolean"/>
+ * mIsScaleMenuView的属性值设置
+ * <attr name="top_meun_scrollable" format="boolean"/>
  * Created by ${R.js} on 2018/3/7.
  */
 
@@ -39,11 +38,27 @@ public class VerticalScrollView extends FrameLayout {
     private boolean intercept = false;
     // 滑动距离的监听
     private OnScrollListener onScrollListener;
+    // 刷新的监听
+    private OnRefreshListener onRefreshListener;
     /**
      * 是否放大上面menuView：如果为false，则向下滑动时，最多滑动menuView的高度，滑动的距离等于这个高度时，
      * 不能再向下滑动，如果为true，则滑动的距离等于这个高度时，可以再向下滑动，并且向下滑动时放大menuView。
      */
     private boolean mIsScaleMenuView = true;
+    // 进度框--用View表示，之后就可以添加任意类型的自定义loading框
+    private View mLoadingView;
+    // 刷新的状态
+    private RefreshState refreshState = RefreshState.COMPLETED;
+
+    /**
+     * 刷新的状态
+     */
+    public enum RefreshState {
+        // 刷新完成
+        COMPLETED,
+        // 刷新中
+        REFRESHING
+    }
 
 
     public VerticalScrollView(Context context) {
@@ -67,6 +82,7 @@ public class VerticalScrollView extends FrameLayout {
     }
 
     private void init() {
+
         mDragHelper = ViewDragHelper.create(this, callback);
     }
 
@@ -79,10 +95,13 @@ public class VerticalScrollView extends FrameLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (getChildCount() != 2)
-            throw new InflateException("上下滑动布局必须有且仅有两个直接的子View");
+//        if (getChildCount() != 2)
+//            throw new InflateException("上下滑动布局必须有且仅有两个直接的子View");
         mMenuView = getChildAt(0);
         mMainView = getChildAt(1);
+        if (mMenuView instanceof ViewGroup) {
+            mLoadingView = mMenuView.findViewById(R.id.pb_refresh);
+        }
         if (mMainView instanceof ListView) {
             lvOnScrollListener((ListView) mMainView);
             return;
@@ -124,7 +143,8 @@ public class VerticalScrollView extends FrameLayout {
     private void lvOnScrollListener(ListView listView) {
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
@@ -221,6 +241,17 @@ public class VerticalScrollView extends FrameLayout {
                 mMenuView.setScaleX(scale * scale);
                 mMenuView.setScaleY(scale * scale);
                 mMainView.layout(0, top, mMainView.getMeasuredWidth(), mMainView.getBottom());
+                // 设置刷新的进度框是否显示
+                if (!mIsScaleMenuView) return;
+                if (refreshState == RefreshState.REFRESHING) {
+                    mLoadingView.setVisibility(View.VISIBLE);
+                } else if (mLoadingView != null) {
+                    if (top > (mDragRange + 100) && mLoadingView.getVisibility() == View.INVISIBLE) {
+                        mLoadingView.setVisibility(View.VISIBLE);
+                    } else if (top <= (mDragRange + 100) && mLoadingView.getVisibility() == View.VISIBLE) {
+                        mLoadingView.setVisibility(View.INVISIBLE);
+                    }
+                }
             }
         }
 
@@ -231,8 +262,25 @@ public class VerticalScrollView extends FrameLayout {
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
             whenFingerUp();
+            shouldRefresh();
         }
     };
+
+    /**
+     * 是否需要刷新
+     */
+    private void shouldRefresh() {
+        // 如果不设置放大效果，则刷新数据也不给，因为不放大，getTop永远小于mDragRange + 100
+        if (!mIsScaleMenuView) return;
+        if (mMainView.getTop() > (mDragRange + 100)) {
+            refreshState = RefreshState.REFRESHING;
+            if (onRefreshListener != null) {
+                onRefreshListener.onRefresh();
+            }
+        } else {
+            refreshState = RefreshState.COMPLETED;
+        }
+    }
 
     /**
      * 当手抬起时，判断是要close，还是要open
@@ -265,9 +313,20 @@ public class VerticalScrollView extends FrameLayout {
     }
 
     /**
+     * 设置刷新的状态
+     *
+     * @param refreshState 刷新的状态
+     */
+    public void setRefreshState(RefreshState refreshState) {
+        this.refreshState = refreshState;
+        if (mLoadingView != null)
+            mLoadingView.setVisibility(this.refreshState == RefreshState.COMPLETED ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    /**
      * 设置是否放大menuView
      *
-     * @param isScaleMenuView
+     * @param isScaleMenuView true:放大；false：不放大
      */
     public void setIsScaleMenuView(boolean isScaleMenuView) {
         this.mIsScaleMenuView = isScaleMenuView;
@@ -275,6 +334,7 @@ public class VerticalScrollView extends FrameLayout {
 
     /**
      * 动态设置滑动的范围
+     *
      * @param dragRange 默认为顶部menuView的高度
      */
     public void setDragRange(int dragRange) {
@@ -307,5 +367,16 @@ public class VerticalScrollView extends FrameLayout {
 
     public void setOnScrollListener(OnScrollListener onScrollListener) {
         this.onScrollListener = onScrollListener;
+    }
+
+    /**
+     * 刷新的监听
+     */
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
+
+    public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
+        this.onRefreshListener = onRefreshListener;
     }
 }

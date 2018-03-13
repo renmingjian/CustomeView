@@ -12,14 +12,16 @@
         android:orientation="vertical">
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:onClick="verticalScrollView"
             android:text="垂直滑动布局"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:onClick="slideMenu"
             android:text="侧滑菜单"/>
 

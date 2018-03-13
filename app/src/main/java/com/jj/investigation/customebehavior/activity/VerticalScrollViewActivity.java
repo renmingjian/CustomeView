@@ -1,11 +1,14 @@
 package com.jj.investigation.customebehavior.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jj.investigation.customebehavior.R;
 import com.jj.investigation.customebehavior.adapter.DataAdapter;
@@ -19,7 +22,7 @@ import java.util.List;
  * 显示上下滑动的View页面
  * Created by ${R.js} on 2018/3/6.
  */
-public class VerticalScrollViewActivity extends AppCompatActivity {
+public class VerticalScrollViewActivity extends AppCompatActivity implements VerticalScrollView.OnRefreshListener {
 
     private ListView listView;
     private VerticalScrollView verticalScrollView;
@@ -58,6 +61,7 @@ public class VerticalScrollViewActivity extends AppCompatActivity {
                 tv.setScaleY(1 - alpha / 2);
             }
         });
+        verticalScrollView.setOnRefreshListener(this);
         initData();
     }
 
@@ -68,4 +72,28 @@ public class VerticalScrollViewActivity extends AppCompatActivity {
         }
         listView.setAdapter(new DataAdapter(this, list));
     }
+
+    @Override
+    public void onRefresh() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                    handler.sendEmptyMessage(0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            verticalScrollView.setRefreshState(VerticalScrollView.RefreshState.COMPLETED);
+            Toast.makeText(VerticalScrollViewActivity.this, "刷新完成", Toast.LENGTH_SHORT).show();
+        }
+    };
 }
