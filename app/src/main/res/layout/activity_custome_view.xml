@@ -25,6 +25,44 @@
             android:onClick="slideMenu"
             android:text="侧滑菜单"/>
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:onClick="webView"
+            android:text="webView"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:onClick="recyclerview"
+            android:text="recyclerview"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:onClick="godown"
+            android:text="下载"/>
+
+        <ProgressBar
+            android:id="@+id/pb_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="20"
+            android:layout_margin="20dp"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"/>
+
+
+        <TextView
+            android:id="@+id/tv_do"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="下载完成"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="5dp"
+            android:gravity="right"/>
 
     </LinearLayout>
 

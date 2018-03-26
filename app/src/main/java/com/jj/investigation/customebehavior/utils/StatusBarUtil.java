@@ -17,8 +17,8 @@ public class StatusBarUtil {
     /**
      * 给activity的状态栏设置颜色
      *
-     * @param activity
-     * @param color
+     * @param activity activity
+     * @param color 颜色值
      */
     public static void setStatusBarColor(Activity activity, int color) {
         // 5.0 以上

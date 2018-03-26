@@ -1,15 +1,12 @@
 package com.jj.investigation.customebehavior.activity;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.jj.investigation.customebehavior.R;
 import com.jj.investigation.customebehavior.fragment.ContactFragment;
@@ -17,23 +14,24 @@ import com.jj.investigation.customebehavior.fragment.GroupFragment;
 import com.jj.investigation.customebehavior.fragment.HomeFragment;
 import com.jj.investigation.customebehavior.helper.NavHelper;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, NavHelper.OnTabChangedListener<Integer> {
+public class MainActivity extends BaseActivity implements BottomNavigationView.OnNavigationItemSelectedListener, NavHelper.OnTabChangedListener<Integer> {
 
     private BottomNavigationView mBnvMain;
     private NavHelper<Integer> mNavHelper;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        getWindow()
-                .addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        initView();
-        initData();
+    @Override
+    protected int initLayout() {
+        return R.layout.activity_main;
     }
 
-    private void initView() {
+    @Override
+    protected int setStatusBarColor() {
+        return 0;
+    }
+
+    @Override
+    protected void initView() {
 
         mBnvMain = (BottomNavigationView) findViewById(R.id.bnv_main);
         mBnvMain.setOnNavigationItemSelectedListener(this);
@@ -45,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 startActivity(new Intent(MainActivity.this, CustomeViewActivity.class));
             }
         });
+        notSetStatusBarColor();
+        initData();
     }
 
     private void initData() {
