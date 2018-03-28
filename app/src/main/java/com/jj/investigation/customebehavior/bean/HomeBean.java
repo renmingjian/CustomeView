@@ -32,6 +32,16 @@ public class HomeBean implements Serializable {
     public class HomeSubBean implements Serializable {
         private String desc;
         private int type;
+        private List<String> stringList;
+
+
+        public List<String> getStringList() {
+            return stringList;
+        }
+
+        public void setStringList(List<String> stringList) {
+            this.stringList = stringList;
+        }
 
         public String getDesc() {
             return desc;

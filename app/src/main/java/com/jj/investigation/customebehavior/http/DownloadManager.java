@@ -3,7 +3,7 @@ package com.jj.investigation.customebehavior.http;
 import android.os.Environment;
 import android.util.Log;
 
-import com.jj.investigation.customebehavior.bean.DownInfo;
+import com.jj.investigation.customebehavior.bean.DownloadInfo;
 import com.jj.investigation.customebehavior.utils.CommonUtils;
 import com.jj.investigation.customebehavior.utils.FileUtil;
 import com.jj.investigation.customebehavior.utils.MyConstants;
@@ -32,15 +32,22 @@ import rx.schedulers.Schedulers;
 
 public class DownloadManager implements DownloadProgressListener {
 
-    private DownInfo info;
-    private ProgressObserver progressObserver;
+    private DownloadInfo info;
+    private ProgressListener progressObserver;
     private File outFile;
     private Subscription subscribe;
+    private DownLoadService service;
 
     private DownloadManager() {
-        info = new DownInfo();
+        info = new DownloadInfo();
+        info.setId(1);
+        info.setFileName("穿越火线手机版");
         outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "yaoshi.apk");
         info.setSavePath(outFile.getAbsolutePath());
+    }
+
+    public void setInfo(DownloadInfo info) {
+        this.info = info;
     }
 
     public static DownloadManager getInstance() {
@@ -51,16 +58,29 @@ public class DownloadManager implements DownloadProgressListener {
         private static DownloadManager manager = new DownloadManager();
     }
 
+    public DownloadInfo getInfo() {
+        return info;
+    }
+
     @Override
-    public void progress(final long read, final long contentLength, final boolean done) {
-        Log.e("progress : ", "read = " + read + "contentLength = " + contentLength + "done = " + done);
+    public void progress(long read, final long contentLength, final boolean done) {
+        Log.e("progress : ", "read = " + read + "contentLength = " + contentLength);
         // 该方法仍然是在子线程，如果想要调用进度回调，需要切换到主线程，否则的话，会在子线程更新UI，直接错误
-        final int progress = (int) (100 * read / contentLength);
-        Observable.just(progress).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Integer>() {
+        // 如果断电续传，重新请求的文件大小是从断点处到最后的大小，不是整个文件的大小，info中的存储的总长度是
+        // 整个文件的大小，所以某一时刻总文件的大小可能会大于从某个断点处请求的文件的总大小。此时read的大小为
+        // 之前读取的加上现在读取的
+        if (info.getContentLength() > contentLength) {
+            read = read + (info.getContentLength() - contentLength);
+        } else {
+            info.setContentLength(contentLength);
+        }
+        info.setReadLength(read);
+
+        Observable.just(1).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Integer>() {
             @Override
             public void call(Integer integer) {
                 if (progressObserver != null) {
-                    progressObserver.progressChanged(read, contentLength, done);
+                    progressObserver.progressChanged(info.getReadLength(), info.getContentLength(), done);
                 }
             }
         });
@@ -72,10 +92,8 @@ public class DownloadManager implements DownloadProgressListener {
      */
     public void start(String url) {
         info.setUrl(url);
-        DownLoadService service;
         final DownloadInterceptor interceptor = new DownloadInterceptor(this);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        //手动创建一个OkHttpClient并设置超时时间
         builder.connectTimeout(8, TimeUnit.SECONDS);
         builder.addInterceptor(interceptor);
 
@@ -85,33 +103,41 @@ public class DownloadManager implements DownloadProgressListener {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .baseUrl(CommonUtils.getBasUrl(MyConstants.DOWNLOAD_URL))
                 .build();
-        service = retrofit.create(DownLoadService.class);
+        if (service == null) {
+            service = retrofit.create(DownLoadService.class);
+            info.setService(service);
+        } else {
+            service = info.getService();
+        }
 
+        downLoad();
 
-        /*指定线程*//*失败后的retry配置*//*读取下载写入文件*///写文件(真正写是在这里)
-        /*回调线程*//*数据回调*///订阅的时候才会执行上面的方法
+    }
+
+    /**
+     * 开始下载
+     */
+    private void downLoad() {
+        Log.e("下载：", info.toString());
         subscribe = service.download("bytes=" + info.getReadLength() + "-", info.getUrl())
                 /*指定线程*/
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
-                   /*失败后的retry配置*/
-                /*读取下载写入文件*/
-                .map(new Func1<ResponseBody, DownInfo>() {
+                /* 读取下载写入文件，并把ResponseBody转成DownInfo */
+                .map(new Func1<ResponseBody, DownloadInfo>() {
                     @Override
-                    public DownInfo call(ResponseBody responseBody) {
+                    public DownloadInfo call(ResponseBody responseBody) {
                         try {
-                            //写文件(真正写是在这里)
+                            //写入文件
                             FileUtil.writeCache(responseBody, new File(info.getSavePath()), info);
                         } catch (IOException e) {
-                            Log.e("yichang:", e.toString());
+                            Log.e("异常:", e.toString());
                         }
                         return info;
                     }
                 })
-                /*回调线程*/
                 .observeOn(AndroidSchedulers.mainThread())
-                /*数据回调*/   //订阅的时候才会执行上面的方法
-                .subscribe(new Subscriber<DownInfo>() {
+                .subscribe(new Subscriber<DownloadInfo>() {
                     @Override
                     public void onCompleted() {
                         Log.e("下载", "onCompleted");
@@ -123,7 +149,7 @@ public class DownloadManager implements DownloadProgressListener {
                     }
 
                     @Override
-                    public void onNext(DownInfo downInfo) {
+                    public void onNext(DownloadInfo downloadInfo) {
                         Log.e("下载", "onNext");
                     }
                 });
@@ -133,14 +159,25 @@ public class DownloadManager implements DownloadProgressListener {
      * 暂停下载
      */
     public void pause() {
-
+        if (subscribe != null)
+            subscribe.unsubscribe();
     }
 
-    public interface ProgressObserver {
+    /**
+     * 继续下载
+     */
+    public void reStart() {
+        downLoad();
+    }
+
+    /**
+     * 进度监听
+     */
+    public interface ProgressListener {
         void progressChanged(long read, long contentLength, boolean done);
     }
 
-    public void setProgressObserver(ProgressObserver progressObserver) {
+    public void setProgressListener(ProgressListener progressObserver) {
         this.progressObserver = progressObserver;
     }
 }

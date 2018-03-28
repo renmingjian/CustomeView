@@ -2,7 +2,7 @@ package com.jj.investigation.customebehavior.utils;
 
 import android.util.Log;
 
-import com.jj.investigation.customebehavior.bean.DownInfo;
+import com.jj.investigation.customebehavior.bean.DownloadInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,14 +25,14 @@ public class FileUtil {
      * @param info
      * @throws IOException
      */
-    public static void writeCache(ResponseBody responseBody, File file, DownInfo info) throws IOException {
+    public static void writeCache(ResponseBody responseBody, File file, DownloadInfo info) throws IOException {
         if (!file.getParentFile().exists())
             file.getParentFile().mkdirs();
         long allLength;
-        if (info.getCountLength() == 0) {
+        if (info.getContentLength() == 0) {
             allLength = responseBody.contentLength();
         } else {
-            allLength = info.getCountLength();
+            allLength = info.getContentLength();
         }
         Log.e("allLength = ", "" + allLength);
         Log.e("path = ", file.getAbsolutePath());

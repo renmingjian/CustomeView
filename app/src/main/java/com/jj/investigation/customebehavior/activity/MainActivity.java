@@ -44,10 +44,10 @@ public class MainActivity extends BaseActivity implements BottomNavigationView.O
             }
         });
         notSetStatusBarColor();
-        initData();
     }
 
-    private void initData() {
+    @Override
+    protected void initData() {
         // 初始化底部辅助工具类
         mNavHelper = new NavHelper<>(this, R.id.fl_main_container,
                 getSupportFragmentManager(), this);

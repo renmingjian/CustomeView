@@ -23,7 +23,9 @@
         <activity android:name=".activity.CustomeViewActivity"/>
         <activity android:name=".activity.SlideMenuActivity"/>
         <activity android:name=".activity.WebActivity"/>
-        <activity android:name=".activity.RvActivity"/>
+        <activity android:name=".activity.RvOneItemActivity"/>
+        <activity android:name=".activity.RvMultiItemActivity"/>
+        <service android:name=".service.DownLoadService"/>
     </application>
 
 </manifest>

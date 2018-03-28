@@ -35,6 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         mActivity = this;
         initView();
+        initData();
     }
 
     /**
@@ -53,6 +54,12 @@ public abstract class BaseActivity extends AppCompatActivity {
      * 初始化布局
      */
     protected abstract void initView();
+
+
+    /**
+     * 初始化数据
+     */
+    protected abstract void initData();
 
     /**
      * 设置不需要设置状态栏的颜色
